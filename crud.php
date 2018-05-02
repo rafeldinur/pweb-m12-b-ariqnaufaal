@@ -1,18 +1,19 @@
 <?php 
 
-$db = new mysqli("localhost", 'root', 'password', 'pweb_b');
+$db = new mysqli("localhost", 'root', '', 'pweb_b');
 
 if($db->connect_errno > 0){
     die("Gagal bos..!!!");
 }
-if(isset($_POST['nama_barang'])){
-    $nama = $_POST['nama_barang'];
-    $deskripsi = $_POST['deskripsi_barang'];
-    $harga = $_POST['harga_barang'];
 
-    $query = "INSERT INTO barang(nama, deskripi, harga) VALUES('$nama','$deskripsi', '$harga')";
-    $db->query($query);
-}
+// if(isset($_POST['nama_barang'])){
+//     $nama = $_POST['nama_barang'];
+//     $deskripsi = $_POST['deskripsi_barang'];
+//     $harga = $_POST['harga_barang'];
+
+//     $query = "INSERT INTO barang(nama, deskripi, harga) VALUES('$nama','$deskripsi', '$harga')";
+//     $db->query($query);
+// }
 
 if(isset($_GET['act']) && isset($_GET['id']))
 {
@@ -25,10 +26,27 @@ if(isset($_GET['act']) && isset($_GET['id']))
 
         $row = $result->fetch_assoc();
 
+        $id = $row['id'];
         $nama = $row['nama'];
         $deskripsi = $row['deskripi'];
         $harga = $row['harga'];
-    }else if($aksi == 'delete'){
+
+        if(isset($_POST['update'])){
+            $id = $row['id'];
+            $nama = $_POST['nama_barang'];
+            $deskripsi = $_POST['deskripsi_barang'];
+            $harga = $_POST['harga_barang'];
+            $update = "UPDATE barang SET nama='$nama',deskripi='$deskripsi',harga='$harga' WHERE id='$id'";
+            $result = $db->query($update);
+            if($result){
+                echo "Data berhasil diupdate <br>";
+            }
+            else{
+                echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
+            }
+        }
+    }
+    else if($aksi == 'delete'){
         $sql = 'DELETE FROM barang WHERE id=' . $id;
         $result = $db->query($sql);
     }
@@ -40,6 +58,11 @@ if(isset($_GET['act']) && isset($_GET['id']))
 <head>
     <title>Barang</title>
     <link href="./css/bootstrap.min.css" rel="stylesheet" />
+    <script language="JavaScript" type="text/javascript">
+        function konfirmasi(){
+            return confirm('Hapus data ini ?');
+        }
+</script>
 </head>
 <body>
 
@@ -55,21 +78,70 @@ if(isset($_GET['act']) && isset($_GET['id']))
             
                 <div class="form-group">
                     <label >Nama Barang</label>
-                    <input type="text" name="nama_barang" value="<?php echo $nama ?>" class="form-control" placeholder="Nama Barang">
+                    <input type="text" name="nama_barang" value="<?php 
+                    if(isset($_GET['act'])){
+                        if($aksi == 'edit'){
+                            echo $nama;
+                        }
+                        else{
+                            echo "";    
+                        }
+                    }
+                    else{
+                        echo "";
+                    }
+                     ?>" class="form-control" placeholder="Nama Barang">
                 </div>
 
                 <div class="form-group">
                     <label >Deskripsi Barang</label>
-                    <input type="text" name="deskripsi_barang" value="<?php echo $deskripsi ?>" class="form-control" placeholder="Deskripsi">
+                    <input type="text" name="deskripsi_barang" value="<?php 
+                    if(isset($_GET['act'])){
+                        if($aksi == 'edit'){
+                            echo $deskripsi;
+                        }
+                        else{
+                            echo "";    
+                        }
+                    }
+                    else{
+                        echo "";
+                    }
+                     ?>" class="form-control" placeholder="Deskripsi">
                 </div>
 
                 <div class="form-group">
                     <label >Harga Barang</label>
-                    <input type="text" name="harga_barang" value="<?php echo $harga ?>" class="form-control" placeholder="Harga Barang">
+                    <input type="text" name="harga_barang" value="<?php 
+                    if(isset($_GET['act'])){
+                        if($aksi == 'edit'){
+                            echo $harga;
+                        }
+                        else{
+                            echo "";    
+                        }
+                    }
+                    else{
+                        echo "";
+                    }
+                     ?>" class="form-control" placeholder="Harga Barang">
                 </div>
-
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                <button type="submit" class="btn btn-primary">Edit</button>
+    
+                <?php
+                    if(isset($_GET['act'])){
+                        if($aksi == "edit"){
+                            echo '<button type="submit" name="update" class="btn btn-primary">Update</button>';
+                        }
+                        else{
+                            echo '<button type="submit" name="simpan" class="btn btn-primary">Simpan</button>';
+                        }
+                    }
+                    else
+                    {
+                        echo '<button type="submit" name="simpan" class="btn btn-primary">Simpan</button>';
+                    }
+                 ?>   
+                
             </form>
         </div>
     </div>
@@ -110,7 +182,8 @@ if(isset($_GET['act']) && isset($_GET['id']))
                         <td><?php echo $row['harga'] ?></td>  <!-- harga Barang -->
                         <td>
                             <a href="crud.php?act=edit&id=<?php echo $row['id']; ?>" class="btn btn-primary">Edit</a>
-                            <a href="crud.php?act=delete&id=<?php echo $row['id']; ?>"class="btn btn-danger">Delete</a>
+                            <a href="crud.php?act=delete&id=<?php echo $row['id']; ?>" onclick="return konfirmasi()" class="btn btn-danger">Delete</a>
+
                         </td>
                     </tr>
                     <?php
