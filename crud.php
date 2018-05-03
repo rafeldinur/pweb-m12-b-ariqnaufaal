@@ -7,13 +7,26 @@ if($db->connect_errno > 0){
 }
 
 if(isset($_POST['nama_barang'])){
-
+    $id = $_POST['id'];
     $nama = $_POST['nama_barang'];
     $deskripsi = $_POST['deskripsi_barang'];
     $harga = $_POST['harga_barang'];
 
-    $query = "INSERT INTO barang(nama, deskripi, harga) VALUES('$nama','$deskripsi', '$harga')";
-    $db->query($query);
+    if($id>0){
+        $update = "UPDATE barang SET nama='$nama',deskripi='$deskripsi',harga='$harga' WHERE id='$id'";
+        $result = $db->query($update);
+        if($result){
+            echo "Data berhasil diupdate <br>";
+        }
+        else{
+            echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
+        }
+    }
+    else{
+        $query = "INSERT INTO barang(nama, deskripi, harga) VALUES('$nama','$deskripsi', '$harga')";
+        $db->query($query);    
+    }
+    
 }
 
 if(isset($_GET['act']) && isset($_GET['id']))
@@ -50,6 +63,9 @@ if(isset($_GET['act']) && isset($_GET['id']))
         function konfirmasi(){
             return confirm('Hapus data ini ?');
         }
+        function success(){
+            return confirm('Update data berhasil');
+        }
 </script>
 </head>
 <body>
@@ -65,7 +81,7 @@ if(isset($_GET['act']) && isset($_GET['id']))
             <form action="crud.php" method="POST">
                 
                 <div class="form-group">
-<!--                     <input type="hidden" name="id" class="form-control" id="id" value="<?php echo $data['id'] ?>"> -->
+                    <input type="hidden" name="id" class="form-control" id="id" value="<?php echo $id ?>">
                     <label >Nama Barang</label>
                     <input type="text" name="nama_barang" value="<?php 
                     if(isset($_GET['act'])){
@@ -114,8 +130,7 @@ if(isset($_GET['act']) && isset($_GET['id']))
                         echo "";
                     }
                      ?>" class="form-control" placeholder="Harga Barang">
-                </div>
-    
+                </div>   
                 <?php
                     if(isset($_GET['act'])){
                         if($aksi == "edit"){
@@ -129,33 +144,10 @@ if(isset($_GET['act']) && isset($_GET['id']))
                     {
                         echo '<button type="submit" name="simpan" class="btn btn-primary">Simpan</button>';
                     }
-
-if(isset($nama) && isset($harga)){
-$update = $_POST['updatee'];
-if(isset($update)){
-$id = $row['id'];
-$nama = $_POST['nama_barang'];
-$deskripsi = $_POST['deskripsi_barang'];
-$harga = $_POST['harga_barang'];
-if($id !=0){
-$update = "UPDATE barang SET nama='$nama',deskripi='$deskripsi',harga='$harga' WHERE id='$id'";
-$result = $db->query($update);
-if($result){
-echo "Data berhasil diupdate <br>";
-}
-else{
-echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
-}
-}    
-}
-}
                  ?>   
-                
             </form>
         </div>
     </div>
-
-
     <br>
     <!-- ROW untuk form -->
 
@@ -170,14 +162,13 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
             </form>
 
             <?php
-            $conn = mysqli_connect("localhost", 'root', '', 'pweb_b');
+                $conn = mysqli_connect("localhost", 'root', '', 'pweb_b');
                 if(isset($_POST['cari'])){
                     $cari = $_POST['cari'];
                     $carii = $_POST['carii'];
                     $sql = "SELECT * FROM barang WHERE nama like '%$cari%'";
                     $result = mysqli_query($conn,$sql);
-                }
-                
+                }    
             ?>
         </div>
     </div>
@@ -198,11 +189,9 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
                     <th scope="col">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <?php
                     $no = 1;
-
                     while($data = mysqli_fetch_array($result))
                     {
                     ?>
@@ -214,7 +203,6 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
                         <td>
                             <a href="crud.php?act=edit&id=<?php echo $data['id']; ?>" class="btn btn-primary">Edit</a>
                             <a href="crud.php?act=delete&id=<?php echo $data['id']; ?>" onclick="return konfirmasi()" class="btn btn-danger">Delete</a>
-
                         </td>
                     </tr>
                     <?php
@@ -229,12 +217,10 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
     }
     ?>
 
-
     <?php
         $query = 'SELECT * FROM barang';
         $result = $db->query($query);
     ?>
-
     <hr>
 
     <div class="row">
@@ -251,7 +237,6 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
                     <th scope="col">Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <?php
                     $no = 1;
@@ -266,7 +251,6 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
                         <td>
                             <a href="crud.php?act=edit&id=<?php echo $row['id']; ?>" class="btn btn-primary">Edit</a>
                             <a href="crud.php?act=delete&id=<?php echo $row['id']; ?>" onclick="return konfirmasi()" class="btn btn-danger">Delete</a>
-
                         </td>
                     </tr>
                     <?php
@@ -274,14 +258,11 @@ echo "ERROR: Could not able to execute $sql. " . mysqli_error($db);
                     $result->free();
                     ?>
                 </tbody>
-
                 </table>
         </div>
     </div> 
     <!-- ROW untuk table -->
 </div>
-
-
 </body>
 </html>
 
